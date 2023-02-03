@@ -4,7 +4,7 @@ import "./lib/BytesToTypes.sol";
 import "./lib/Memory.sol";
 import "./interface/ISlashIndicator.sol";
 import "./interface/IApplication.sol";
-import "./interface/IBSCValidatorSet.sol";
+import "./interface/IAXCValidatorSet.sol";
 import "./interface/IParamSubscriber.sol";
 import "./interface/ICrossChain.sol";
 import "./lib/CmnPkg.sol";
@@ -15,7 +15,7 @@ contract SlashIndicator is ISlashIndicator,System,IParamSubscriber, IApplication
 
   uint256 public constant MISDEMEANOR_THRESHOLD = 50;
   uint256 public constant FELONY_THRESHOLD = 150;
-  uint256 public constant BSC_RELAYER_REWARD = 1e16;
+  uint256 public constant AXC_RELAYER_REWARD = 1e16;
   uint256 public constant DECREASE_RATE = 4;
 
   // State of the contract
@@ -23,8 +23,8 @@ contract SlashIndicator is ISlashIndicator,System,IParamSubscriber, IApplication
   mapping(address => Indicator) public indicators;
   uint256 public previousHeight;
 
-  // The BSC validators assign proper values for `misdemeanorThreshold` and `felonyThreshold` through governance.
-  // The proper values depends on BSC network's tolerance for continuous missing blocks.
+  // The AXC validators assign proper values for `misdemeanorThreshold` and `felonyThreshold` through governance.
+  // The proper values depends on AXC network's tolerance for continuous missing blocks.
   uint256 public  misdemeanorThreshold;
   uint256 public  felonyThreshold;
 
@@ -83,7 +83,7 @@ contract SlashIndicator is ISlashIndicator,System,IParamSubscriber, IApplication
 
   /*********************** External func ********************************/
   function slash(address validator) external onlyCoinbase onlyInit oncePerBlock onlyZeroGasPrice{
-    if (!IBSCValidatorSet(VALIDATOR_CONTRACT_ADDR).isCurrentValidator(validator)) {
+    if (!IAXCValidatorSet(VALIDATOR_CONTRACT_ADDR).isCurrentValidator(validator)) {
       return;
     }
     Indicator memory indicator = indicators[validator];
@@ -97,10 +97,10 @@ contract SlashIndicator is ISlashIndicator,System,IParamSubscriber, IApplication
     indicator.height = block.number;
     if (indicator.count % felonyThreshold == 0) {
       indicator.count = 0;
-      IBSCValidatorSet(VALIDATOR_CONTRACT_ADDR).felony(validator);
+      IAXCValidatorSet(VALIDATOR_CONTRACT_ADDR).felony(validator);
       ICrossChain(CROSS_CHAIN_CONTRACT_ADDR).sendSynPackage(SLASH_CHANNELID, encodeSlashPackage(validator), 0);
     } else if (indicator.count % misdemeanorThreshold == 0) {
-      IBSCValidatorSet(VALIDATOR_CONTRACT_ADDR).misdemeanor(validator);
+      IAXCValidatorSet(VALIDATOR_CONTRACT_ADDR).misdemeanor(validator);
     }
     indicators[validator] = indicator;
     emit validatorSlashed(validator);
@@ -193,7 +193,7 @@ contract SlashIndicator is ISlashIndicator,System,IParamSubscriber, IApplication
     bytes[] memory elements = new bytes[](4);
     elements[0] = valAddr.encodeAddress();
     elements[1] = uint256(block.number).encodeUint();
-    elements[2] = uint256(bscChainID).encodeUint();
+    elements[2] = uint256(axcChainID).encodeUint();
     elements[3] = uint256(block.timestamp).encodeUint();
     return elements.encodeList();
   }

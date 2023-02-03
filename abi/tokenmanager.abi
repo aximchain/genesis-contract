@@ -472,7 +472,7 @@
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "MAX_GAS_FOR_TRANSFER_BNB",
+		"name": "MAX_GAS_FOR_TRANSFER_AXC",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -930,7 +930,7 @@
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "bscChainID",
+		"name": "axcChainID",
 		"outputs": [
 			{
 				"internalType": "uint16",

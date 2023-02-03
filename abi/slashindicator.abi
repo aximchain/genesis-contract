@@ -87,7 +87,7 @@
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "BSC_RELAYER_REWARD",
+		"name": "AXC_RELAYER_REWARD",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -417,7 +417,7 @@
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "bscChainID",
+		"name": "axcChainID",
 		"outputs": [
 			{
 				"internalType": "uint16",

@@ -8,26 +8,26 @@ const validators = require("./validators")
 const init_holders = require("./init_holders")
 
 
-program.option("--bscChainId <bscChainId>",
-    "bscChainId",
-    "0060");
+program.option("--axcChainId <axcChainId>",
+  "axcChainId",
+  "0060");
 program.option("-c, --chainid <chainid>", "chain id", "714")
 
 program.option(
-    "--initValidatorSetBytes <initValidatorSetBytes>",
-    "initValidatorSetBytes",
-    ""
+  "--initValidatorSetBytes <initValidatorSetBytes>",
+  "initValidatorSetBytes",
+  ""
 )
 
 program.option(
-    "--initBurnRatio <initBurnRatio>",
-    "initBurnRatio",
-    "0"
+  "--initBurnRatio <initBurnRatio>",
+  "initBurnRatio",
+  "0"
 )
 
 program.option("--initConsensusStateBytes <initConsensusStateBytes>",
-    "init consensusState bytes, hex encoding, no prefix with 0x",
-    "42696e616e63652d436861696e2d4e696c650000000000000000000000000000000000000000000229eca254b3859bffefaf85f4c95da9fbd26527766b784272789c30ec56b380b6eb96442aaab207bc59978ba3dd477690f5c5872334fc39e627723daa97e441e88ba4515150ec3182bc82593df36f8abb25a619187fcfab7e552b94e64ed2deed000000e8d4a51000");
+  "init consensusState bytes, hex encoding, no prefix with 0x",
+  "42696e616e63652d436861696e2d4e696c650000000000000000000000000000000000000000000229eca254b3859bffefaf85f4c95da9fbd26527766b784272789c30ec56b380b6eb96442aaab207bc59978ba3dd477690f5c5872334fc39e627723daa97e441e88ba4515150ec3182bc82593df36f8abb25a619187fcfab7e552b94e64ed2deed000000e8d4a51000");
 
 
 require("./generate-system");
@@ -93,8 +93,8 @@ function compileContract(key, contractFile, contractName) {
 Promise.all([
   compileContract(
     "validatorContract",
-    "contracts/BSCValidatorSet.sol",
-    "BSCValidatorSet"
+    "contracts/AXCValidatorSet.sol",
+    "AXCValidatorSet"
   ),
   compileContract(
     "systemRewardContract",
@@ -102,44 +102,44 @@ Promise.all([
     "SystemReward"
   ),
   compileContract(
-      "slashContract",
-      "contracts/SlashIndicator.sol",
-      "SlashIndicator"
+    "slashContract",
+    "contracts/SlashIndicator.sol",
+    "SlashIndicator"
   ),
   compileContract(
-      "tendermintLightClient",
-      "contracts/TendermintLightClient.sol",
-      "TendermintLightClient"
+    "tendermintLightClient",
+    "contracts/TendermintLightClient.sol",
+    "TendermintLightClient"
   ),
   compileContract(
-      "tokenHub",
-      "contracts/TokenHub.sol",
-      "TokenHub"
+    "tokenHub",
+    "contracts/TokenHub.sol",
+    "TokenHub"
   ),
   compileContract(
-      "relayerHub",
-      "contracts/RelayerHub.sol",
-      "RelayerHub"
+    "relayerHub",
+    "contracts/RelayerHub.sol",
+    "RelayerHub"
   ),
   compileContract(
-      "relayerIncentivize",
-      "contracts/RelayerIncentivize.sol",
-      "RelayerIncentivize"
+    "relayerIncentivize",
+    "contracts/RelayerIncentivize.sol",
+    "RelayerIncentivize"
   ),
   compileContract(
-      "govHub",
-      "contracts/GovHub.sol",
-      "GovHub"
+    "govHub",
+    "contracts/GovHub.sol",
+    "GovHub"
   ),
   compileContract(
-      "tokenManager",
-      "contracts/TokenManager.sol",
-      "TokenManager"
+    "tokenManager",
+    "contracts/TokenManager.sol",
+    "TokenManager"
   ),
   compileContract(
-      "crossChain",
-      "contracts/CrossChain.sol",
-      "CrossChain"
+    "crossChain",
+    "contracts/CrossChain.sol",
+    "CrossChain"
   ),
   compileContract(
     "staking",
@@ -148,12 +148,12 @@ Promise.all([
   )
 ]).then(result => {
 
-program.option("--initLockedBNBOnTokenHub <initLockedBNBOnTokenHub>",
-    "initLockedBNBOnTokenHub",
+  program.option("--initLockedAXCOnTokenHub <initLockedAXCOnTokenHub>",
+    "initLockedAXCOnTokenHub",
     "176405560900000000000000000");
 
   const data = {
-    initLockedBNBOnTokenHub: program.initLockedBNBOnTokenHub,
+    initLockedAXCOnTokenHub: program.initLockedAXCOnTokenHub,
     chainId: program.chainid,
     initHolders: init_holders,
     extraData: web3.utils.bytesToHex(validators.extraValidatorBytes)

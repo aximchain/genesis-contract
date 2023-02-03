@@ -1,46 +1,64 @@
 pragma solidity 0.6.4;
 
-import "../interface/ITokenHub.sol";
+import '../interface/ITokenHub.sol';
 
 contract MockTokenHub is ITokenHub {
-
   bool panicBatchTransferOut;
 
   function getMiniRelayFee() external view override(ITokenHub) returns (uint256) {
     return (1e16);
   }
 
-  function getContractAddrByBEP2Symbol(bytes32 bep2Symbol) external view override(ITokenHub) returns(address) {
+  function getContractAddrByBEP2Symbol(
+    bytes32 bep2Symbol
+  ) external view override(ITokenHub) returns (address) {
     return address(0x0);
   }
 
-  function getBep2SymbolByContractAddr(address contractAddr) external view override(ITokenHub) returns(bytes32) {
+  function getBep2SymbolByContractAddr(
+    address contractAddr
+  ) external view override(ITokenHub) returns (bytes32) {
     return bytes32(0x0);
   }
 
-  function bindToken(bytes32 bep2Symbol, address contractAddr, uint256 decimals) external override(ITokenHub) {}
+  function bindToken(
+    bytes32 bep2Symbol,
+    address contractAddr,
+    uint256 decimals
+  ) external override(ITokenHub) {}
 
   function unbindToken(bytes32 bep2Symbol, address contractAddr) external override(ITokenHub) {}
 
-  function transferOut(address, address, uint256, uint64)
-  external override(ITokenHub) payable returns (bool) {
+  function transferOut(
+    address,
+    address,
+    uint256,
+    uint64
+  ) external payable override(ITokenHub) returns (bool) {
     return true;
   }
 
   /* solium-disable-next-line */
-  function batchTransferOutBNB(address[] calldata, uint256[] calldata, address[] calldata,
-    uint64) external override(ITokenHub) payable returns (bool) {
-    require(!panicBatchTransferOut, "panic in batchTransferOut");
+  function batchTransferOutAXC(
+    address[] calldata,
+    uint256[] calldata,
+    address[] calldata,
+    uint64
+  ) external payable override(ITokenHub) returns (bool) {
+    require(!panicBatchTransferOut, 'panic in batchTransferOut');
     return true;
   }
 
-  function setPanicBatchTransferOut(bool doPanic)external{
+  function setPanicBatchTransferOut(bool doPanic) external {
     panicBatchTransferOut = doPanic;
   }
 
-  function withdrawStakingBNB(uint256 amount) external override returns(bool) {
+  function withdrawStakingAXC(uint256 amount) external override returns (bool) {
     address STAKING_CONTRACT_ADDR = address(0x0000000000000000000000000000000000002001);
-    require(msg.sender == STAKING_CONTRACT_ADDR, "only staking system contract can call this function");
+    require(
+      msg.sender == STAKING_CONTRACT_ADDR,
+      'only staking system contract can call this function'
+    );
     if (amount != 0) {
       payable(STAKING_CONTRACT_ADDR).transfer(amount);
     }

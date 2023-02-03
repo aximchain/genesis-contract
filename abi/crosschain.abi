@@ -547,7 +547,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "bscChainID",
+		"name": "axcChainID",
 		"outputs": [
 			{
 				"internalType": "uint16",

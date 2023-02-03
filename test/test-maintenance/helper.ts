@@ -1,7 +1,7 @@
 import { ethers } from 'hardhat';
 import { Signer } from '@ethersproject/abstract-signer';
 import { Contract, ContractReceipt, ContractTransaction } from '@ethersproject/contracts';
-import { BSCValidatorSet } from '../../typechain-types';
+import { AXCValidatorSet } from '../../typechain-types';
 
 const RLP = require('rlp');
 import web3 from 'web3';
@@ -24,7 +24,7 @@ export async function waitTx(txRequest: Promise<ContractTransaction>): Promise<C
 
 export const setSlashIndicator = async (
   slashAddress: string,
-  validatorSet: BSCValidatorSet,
+  validatorSet: AXCValidatorSet,
   instances: any[]
 ) => {
   await waitTx(
@@ -46,7 +46,7 @@ export const setSlashIndicator = async (
 export function validatorUpdateRlpEncode(
   consensusAddrList: any,
   feeAddrList: any,
-  bscFeeAddrList: any
+  axcFeeAddrList: any
 ) {
   let pkg = [];
   pkg.push(0x00);
@@ -56,7 +56,7 @@ export function validatorUpdateRlpEncode(
     vals.push([
       consensusAddrList[i].toString(),
       feeAddrList[i].toString(),
-      bscFeeAddrList[i].toString(),
+      axcFeeAddrList[i].toString(),
       0x0000000000000064,
     ]);
   }

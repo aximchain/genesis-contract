@@ -8,7 +8,7 @@ const CrossChain = artifacts.require("CrossChain");
 const RelayerHub = artifacts.require("RelayerHub");
 const GovHub = artifacts.require("GovHub");
 const Staking = artifacts.require("Staking");
-const BSCValidatorSet = artifacts.require("BSCValidatorSet");
+const AXCValidatorSet = artifacts.require("AXCValidatorSet");
 
 const RLP = require('rlp');
 const Web3 = require('web3');
@@ -34,9 +34,9 @@ contract('Staking', (accounts) => {
 			serialize("addOrUpdateChannel",
 				web3.utils.bytesToHex(Buffer.concat(
 					[Buffer.from(web3.utils.hexToBytes("0x10")),
-						Buffer.from(web3.utils.hexToBytes("0x01")),
-						Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
-				crossChainInstance.address), {from: relayerAccount});
+					Buffer.from(web3.utils.hexToBytes("0x01")),
+					Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
+				crossChainInstance.address), { from: relayerAccount });
 
 		const delegator = accounts[2];
 		const validator = accounts[0];
@@ -55,7 +55,7 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongAmount = web3.utils.toBN(1e20).add(web3.utils.toBN(1));
-			await stakingInstance.delegate(validator, wrongAmount, {from: delegator, value: amount.add(relayFee)});
+			await stakingInstance.delegate(validator, wrongAmount, { from: delegator, value: amount.add(relayFee) });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("invalid amount: precision loss in amount conversion"));
@@ -63,14 +63,14 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongAmount = web3.utils.toBN(1e18);
-			await stakingInstance.delegate(validator, wrongAmount, {from: delegator, value: wrongAmount.add(relayFee)});
+			await stakingInstance.delegate(validator, wrongAmount, { from: delegator, value: wrongAmount.add(relayFee) });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("the amount must not be less than minDelegationChange"));
 		}
 
 		try {
-			await stakingInstance.delegate(validator, amount, {from: delegator, value: amount});
+			await stakingInstance.delegate(validator, amount, { from: delegator, value: amount });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("the msg value should be no less than the sum of stake amount and minimum oracleRelayerFee"));
@@ -78,13 +78,13 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongRelayFee = web3.utils.toBN(1e15);
-			await stakingInstance.delegate(validator, amount, {from: delegator, value: amount.add(wrongRelayFee)});
+			await stakingInstance.delegate(validator, amount, { from: delegator, value: amount.add(wrongRelayFee) });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("the msg value should be no less than the sum of stake amount and minimum oracleRelayerFee"));
 		}
 
-		let tx = await stakingInstance.delegate(validator, amount, {from: delegator, value: amount.add(relayFee)});
+		let tx = await stakingInstance.delegate(validator, amount, { from: delegator, value: amount.add(relayFee) });
 		truffleAssert.eventEmitted(tx, "delegateSubmitted", (ev) => {
 			return ev.amount.eq(amount) && ev.oracleRelayerFee.eq(relayFee);
 		});
@@ -101,7 +101,7 @@ contract('Staking', (accounts) => {
 		let amount = web3.utils.toBN(1e20);
 		let relayFee = web3.utils.toBN(2e16);
 		try {
-			await stakingInstance.undelegate(validator, amount, {from: delegator, value: relayFee.add(web3.utils.toBN(1))});
+			await stakingInstance.undelegate(validator, amount, { from: delegator, value: relayFee.add(web3.utils.toBN(1)) });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("invalid msg value: precision loss in amount conversion"));
@@ -109,7 +109,7 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongAmount = web3.utils.toBN(1e20).add(web3.utils.toBN(1));
-			await stakingInstance.undelegate(validator, wrongAmount, {from: delegator, value: relayFee});
+			await stakingInstance.undelegate(validator, wrongAmount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("invalid amount: precision loss in amount conversion"));
@@ -117,7 +117,7 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongAmount = web3.utils.toBN(1e18);
-			await stakingInstance.undelegate(validator, wrongAmount, {from: delegator, value: relayFee});
+			await stakingInstance.undelegate(validator, wrongAmount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("the amount must not be less than minDelegationChange, or else equal to the remaining delegation"));
@@ -125,28 +125,29 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongRelayFee = web3.utils.toBN(1e15);
-			await stakingInstance.undelegate(validator, amount, {from: delegator, value: wrongRelayFee});
+			await stakingInstance.undelegate(validator, amount, { from: delegator, value: wrongRelayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("the msg value should be no less than the minimum oracleRelayerFee"));
 		}
 
 		try {
-			await stakingInstance.undelegate(accounts[1], amount, {from: delegator, value: relayFee});
+			await stakingInstance.undelegate(accounts[1], amount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("not enough funds to undelegate"));
 		}
 
-		let tx = await stakingInstance.undelegate(validator, amount, {from: delegator, value: relayFee});
+		let tx = await stakingInstance.undelegate(validator, amount, { from: delegator, value: relayFee });
 		truffleAssert.eventEmitted(tx, "undelegateSubmitted", (ev) => {
-			return ev.amount.eq(amount) && ev.oracleRelayerFee.eq(relayFee); });
+			return ev.amount.eq(amount) && ev.oracleRelayerFee.eq(relayFee);
+		});
 
 		let lockedUndelegated = await stakingInstance.getPendingUndelegated.call(delegator, validator);
 		assert.equal(lockedUndelegated.toString(), amount.toString());
 
 		try {
-			await stakingInstance.undelegate(validator, amount, {from: delegator, value: relayFee});
+			await stakingInstance.undelegate(validator, amount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("pending undelegation exist"));
@@ -161,17 +162,17 @@ contract('Staking', (accounts) => {
 
 		let amount = web3.utils.toBN(2e20);
 		let relayFee = web3.utils.toBN(2e16);
-		await stakingInstance.delegate(validatorSrc, amount, {from: delegator, value: amount.add(relayFee)});
+		await stakingInstance.delegate(validatorSrc, amount, { from: delegator, value: amount.add(relayFee) });
 
 		try {
-			await stakingInstance.redelegate(validatorSrc, validatorSrc, amount, {from: delegator, value: relayFee});
+			await stakingInstance.redelegate(validatorSrc, validatorSrc, amount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("invalid redelegation, source validator is the same as dest validator"));
 		}
 
 		try {
-			await stakingInstance.redelegate(accounts[3], validatorDst, amount, {from: delegator, value: relayFee});
+			await stakingInstance.redelegate(accounts[3], validatorDst, amount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("not enough funds to redelegate"));
@@ -186,7 +187,7 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongAmount = web3.utils.toBN(1e20).add(web3.utils.toBN(1));
-			await stakingInstance.redelegate(validatorSrc, validatorDst, wrongAmount, {from: delegator, value: relayFee});
+			await stakingInstance.redelegate(validatorSrc, validatorDst, wrongAmount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("invalid amount: precision loss in amount conversion"));
@@ -194,7 +195,7 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongAmount = web3.utils.toBN(1e18);
-			await stakingInstance.redelegate(validatorSrc, validatorDst, wrongAmount, {from: delegator, value: relayFee});
+			await stakingInstance.redelegate(validatorSrc, validatorDst, wrongAmount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("the amount must not be less than minDelegationChange"));
@@ -202,20 +203,20 @@ contract('Staking', (accounts) => {
 
 		try {
 			const wrongRelayFee = web3.utils.toBN(1e15);
-			await stakingInstance.redelegate(validatorSrc, validatorDst, amount, {from: delegator, value: wrongRelayFee});
+			await stakingInstance.redelegate(validatorSrc, validatorDst, amount, { from: delegator, value: wrongRelayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("the msg value should be no less than the minimum oracleRelayerFee"));
 		}
 
 		amount = web3.utils.toBN(1e20);
-		let tx = await stakingInstance.redelegate(validatorSrc, validatorDst, amount, {from: delegator, value: relayFee});
+		let tx = await stakingInstance.redelegate(validatorSrc, validatorDst, amount, { from: delegator, value: relayFee });
 		truffleAssert.eventEmitted(tx, "redelegateSubmitted", (ev) => {
 			return ev.amount.eq(amount) && ev.oracleRelayerFee.eq(relayFee);
 		});
 
 		try {
-			await stakingInstance.redelegate(validatorSrc, validatorDst, amount, {from: delegator, value: relayFee});
+			await stakingInstance.redelegate(validatorSrc, validatorDst, amount, { from: delegator, value: relayFee });
 			assert.fail();
 		} catch (error) {
 			assert.ok(error.toString().includes("conflicting redelegation from this source validator to this dest validator already exists, you must wait for it to finish"));
@@ -231,26 +232,26 @@ contract('Staking', (accounts) => {
 		const stakingInstance = await Staking.deployed();
 		const relayerAccount = accounts[8];
 
-		await tokenHubInstance.send(web3.utils.toBN(1e20), {from: accounts[1]});
+		await tokenHubInstance.send(web3.utils.toBN(1e20), { from: accounts[1] });
 		await govHubInstance.handleSynPackage(GOV_CHANNEL_ID,
 			serialize("addOrUpdateChannel", web3.utils.bytesToHex(Buffer.concat(
-					[Buffer.from(web3.utils.hexToBytes("0x10")),
-						Buffer.from(web3.utils.hexToBytes("0x00")),
-						Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
-				crossChainInstance.address), {from: relayerAccount});
+				[Buffer.from(web3.utils.hexToBytes("0x10")),
+				Buffer.from(web3.utils.hexToBytes("0x00")),
+				Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
+				crossChainInstance.address), { from: relayerAccount });
 
 		const delegator = accounts[2];
 		const validator = accounts[0];
 		let amount = web3.utils.toBN(1e20);
 		let relayFee = web3.utils.toBN(2e16);
-		await stakingInstance.delegate(validator, amount, {from: delegator, value: amount.add(relayFee)});
-		await stakingInstance.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address,
+		await stakingInstance.delegate(validator, amount, { from: delegator, value: amount.add(relayFee) });
+		await stakingInstance.updateContractAddr(AXCValidatorSet.address, SlashIndicator.address, SystemReward.address,
 			LightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address,
 			TokenManager.address, relayerAccount, Staking.address);
 
 		let reward = web3.utils.toBN(1e18);
 		let packageBytes = transferInRewardRlpEncode(EVENT_TRANSFER_IN_REWARD, reward, delegator);
-		let tx = await stakingInstance.handleSynPackage(CROSS_STAKE_CHANNELID, packageBytes, {from: relayerAccount});
+		let tx = await stakingInstance.handleSynPackage(CROSS_STAKE_CHANNELID, packageBytes, { from: relayerAccount });
 		truffleAssert.eventEmitted(tx, "rewardReceived", (ev) => {
 			return ev.amount.eq(reward) && ev.delegator == delegator;
 		});
@@ -265,7 +266,7 @@ contract('Staking', (accounts) => {
 		let pendingReward = await stakingInstance.getDistributedReward.call(delegator);
 		assert.equal(pendingReward.toString(), expectedReward.toString());
 
-		let tx = await stakingInstance.claimReward({from: delegator});
+		let tx = await stakingInstance.claimReward({ from: delegator });
 		assert.equal(tx.logs[0].args.amount.toString(), expectedReward.toString());
 		truffleAssert.eventEmitted(tx, "rewardClaimed", (ev) => {
 			return ev.amount.eq(expectedReward) && ev.delegator == delegator;
@@ -283,7 +284,7 @@ contract('Staking', (accounts) => {
 		const delegator = accounts[2];
 
 		let packageBytes = transferInUndelegatedRlpEncode(EVENT_TRANSFER_IN_UNDELEGATED, undelegated, delegator, accounts[0]);
-		let tx = await stakingInstance.handleSynPackage(CROSS_STAKE_CHANNELID, packageBytes, {from: relayerAccount});
+		let tx = await stakingInstance.handleSynPackage(CROSS_STAKE_CHANNELID, packageBytes, { from: relayerAccount });
 		truffleAssert.eventEmitted(tx, "undelegatedReceived", (ev) => {
 			return ev.amount.eq(undelegated) && ev.delegator == delegator;
 		});
@@ -298,7 +299,7 @@ contract('Staking', (accounts) => {
 		let undelegated = await stakingInstance.getUndelegated.call(delegator);
 		assert.equal(undelegated.toString(), expectedUndelegated.toString());
 
-		let tx = await stakingInstance.claimUndeldegated({from: delegator});
+		let tx = await stakingInstance.claimUndeldegated({ from: delegator });
 		assert.equal(tx.logs[0].args.amount.toString(), expectedUndelegated.toString());
 		truffleAssert.eventEmitted(tx, "undelegatedClaimed", (ev) => {
 			return ev.amount.eq(undelegated) && ev.delegator == delegator;
@@ -317,25 +318,25 @@ contract('Staking', (accounts) => {
 		const stakingInstance = await Staking.deployed();
 		const relayerAccount = accounts[8];
 
-		await tokenHubInstance.send(web3.utils.toBN(1e20), {from: accounts[1]});
+		await tokenHubInstance.send(web3.utils.toBN(1e20), { from: accounts[1] });
 		await govHubInstance.handleSynPackage(GOV_CHANNEL_ID,
 			serialize("addOrUpdateChannel", web3.utils.bytesToHex(Buffer.concat(
-					[Buffer.from(web3.utils.hexToBytes("0x10")),
-						Buffer.from(web3.utils.hexToBytes("0x00")),
-						Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
-				crossChainInstance.address), {from: relayerAccount});
+				[Buffer.from(web3.utils.hexToBytes("0x10")),
+				Buffer.from(web3.utils.hexToBytes("0x00")),
+				Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
+				crossChainInstance.address), { from: relayerAccount });
 
 		const delegator = accounts[2];
 		const validator = accounts[0];
 		let amount = web3.utils.toBN(1e20);
 		let relayFee = web3.utils.toBN(2e16);
-		await stakingInstance.delegate(validator, amount, {from: delegator, value: amount.add(relayFee)});
-		await stakingInstance.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address,
+		await stakingInstance.delegate(validator, amount, { from: delegator, value: amount.add(relayFee) });
+		await stakingInstance.updateContractAddr(AXCValidatorSet.address, SlashIndicator.address, SystemReward.address,
 			LightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address,
 			TokenManager.address, relayerAccount, Staking.address);
 
 		let packageBytes = delegateRlpEncode(EVENT_DELEGATE, delegator, validator, amount, 0x01);
-		let tx = await stakingInstance.handleAckPackage(CROSS_STAKE_CHANNELID, packageBytes, {from: relayerAccount});
+		let tx = await stakingInstance.handleAckPackage(CROSS_STAKE_CHANNELID, packageBytes, { from: relayerAccount });
 		truffleAssert.eventEmitted(tx, "failedDelegate", (ev) => {
 			return ev.amount.eq(amount) && ev.delegator === delegator;
 		});
@@ -350,26 +351,26 @@ contract('Staking', (accounts) => {
 		const stakingInstance = await Staking.deployed();
 		const relayerAccount = accounts[8];
 
-		await tokenHubInstance.send(web3.utils.toBN(1e20), {from: accounts[1]});
+		await tokenHubInstance.send(web3.utils.toBN(1e20), { from: accounts[1] });
 		await govHubInstance.handleSynPackage(GOV_CHANNEL_ID,
 			serialize("addOrUpdateChannel", web3.utils.bytesToHex(Buffer.concat(
-					[Buffer.from(web3.utils.hexToBytes("0x10")),
-						Buffer.from(web3.utils.hexToBytes("0x00")),
-						Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
-				crossChainInstance.address), {from: relayerAccount});
+				[Buffer.from(web3.utils.hexToBytes("0x10")),
+				Buffer.from(web3.utils.hexToBytes("0x00")),
+				Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
+				crossChainInstance.address), { from: relayerAccount });
 
 		const delegator = accounts[2];
 		const validator = accounts[0];
 		let amount = web3.utils.toBN(1e20);
 		let relayFee = web3.utils.toBN(2e16);
-		await stakingInstance.delegate(validator, amount, {from: delegator, value: amount.add(relayFee)});
-		await stakingInstance.undelegate(validator, amount, {from: delegator, value: relayFee});
-		await stakingInstance.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address,
+		await stakingInstance.delegate(validator, amount, { from: delegator, value: amount.add(relayFee) });
+		await stakingInstance.undelegate(validator, amount, { from: delegator, value: relayFee });
+		await stakingInstance.updateContractAddr(AXCValidatorSet.address, SlashIndicator.address, SystemReward.address,
 			LightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address,
 			TokenManager.address, relayerAccount, Staking.address);
 
 		let packageBytes = undelegateRlpEncode(EVENT_UNDELEGATE, delegator, validator, amount, 0x01);
-		let tx = await stakingInstance.handleAckPackage(CROSS_STAKE_CHANNELID, packageBytes, {from: relayerAccount});
+		let tx = await stakingInstance.handleAckPackage(CROSS_STAKE_CHANNELID, packageBytes, { from: relayerAccount });
 		truffleAssert.eventEmitted(tx, "failedUndelegate", (ev) => {
 			return ev.amount.eq(amount) && ev.delegator === delegator;
 		});
@@ -384,27 +385,27 @@ contract('Staking', (accounts) => {
 		const stakingInstance = await Staking.deployed();
 		const relayerAccount = accounts[8];
 
-		await tokenHubInstance.send(web3.utils.toBN(1e20), {from: accounts[1]});
+		await tokenHubInstance.send(web3.utils.toBN(1e20), { from: accounts[1] });
 		await govHubInstance.handleSynPackage(GOV_CHANNEL_ID,
 			serialize("addOrUpdateChannel", web3.utils.bytesToHex(Buffer.concat(
-					[Buffer.from(web3.utils.hexToBytes("0x10")),
-						Buffer.from(web3.utils.hexToBytes("0x00")),
-						Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
-				crossChainInstance.address), {from: relayerAccount});
+				[Buffer.from(web3.utils.hexToBytes("0x10")),
+				Buffer.from(web3.utils.hexToBytes("0x00")),
+				Buffer.from(web3.utils.hexToBytes(stakingInstance.address))])),
+				crossChainInstance.address), { from: relayerAccount });
 
 		const delegator = accounts[2];
 		const validatorSrc = accounts[0];
 		const validatorDst = accounts[1];
 		let amount = web3.utils.toBN(1e20);
 		let relayFee = web3.utils.toBN(2e16);
-		await stakingInstance.delegate(validatorSrc, amount, {from: delegator, value: amount.add(relayFee)});
-		await stakingInstance.redelegate(validatorSrc, validatorDst, amount, {from: delegator, value: relayFee});
-		await stakingInstance.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address,
+		await stakingInstance.delegate(validatorSrc, amount, { from: delegator, value: amount.add(relayFee) });
+		await stakingInstance.redelegate(validatorSrc, validatorDst, amount, { from: delegator, value: relayFee });
+		await stakingInstance.updateContractAddr(AXCValidatorSet.address, SlashIndicator.address, SystemReward.address,
 			LightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address,
 			TokenManager.address, relayerAccount, Staking.address);
 
 		let packageBytes = redelegateRlpEncode(EVENT_REDELEGATE, delegator, validatorSrc, validatorDst, amount, 0x01);
-		let tx = await stakingInstance.handleAckPackage(CROSS_STAKE_CHANNELID, packageBytes, {from: relayerAccount});
+		let tx = await stakingInstance.handleAckPackage(CROSS_STAKE_CHANNELID, packageBytes, { from: relayerAccount });
 		truffleAssert.eventEmitted(tx, "failedRedelegate", (ev) => {
 			return ev.amount.eq(amount) && ev.delegator === delegator;
 		});

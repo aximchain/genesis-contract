@@ -4,7 +4,7 @@ import "../lib/RLPDecode.sol";
 import "../lib/Memory.sol";
 
 
-contract BSCValidatorSetTool {
+contract AXCValidatorSetTool {
 
   bytes public constant INIT_VALIDATORSET_BYTES = hex"f84580f842f840949fb29aac15b9a4b7f17c3385939b007540f4d791949fb29aac15b9a4b7f17c3385939b007540f4d791949fb29aac15b9a4b7f17c3385939b007540f4d79164";
 
@@ -13,7 +13,7 @@ contract BSCValidatorSetTool {
   struct Validator {
     address consensusAddress;
     address payable feeAddress;
-    address BBCFeeAddress;
+    address ABCFeeAddress;
     uint64  votingPower;
   }
 
@@ -66,7 +66,7 @@ contract BSCValidatorSetTool {
       } else if (idx == 1) {
         validator.feeAddress = address(uint160(iter.next().toAddress()));
       } else if (idx == 2) {
-        validator.BBCFeeAddress = iter.next().toAddress();
+        validator.ABCFeeAddress = iter.next().toAddress();
       } else if (idx == 3) {
         validator.votingPower = uint64(iter.next().toUint());
         success = true;
