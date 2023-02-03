@@ -1,5 +1,5 @@
 const SlashIndicator = artifacts.require("SlashIndicator");
-const BSCValidatorSet = artifacts.require("BSCValidatorSet");
+const AXCValidatorSet = artifacts.require("AXCValidatorSet");
 const Web3 = require('web3');
 const crypto = require('crypto');
 const RLP = require('rlp');
@@ -11,7 +11,7 @@ const STAKE_CHANNEL_ID = 0x08;
 contract('SlashIndicator', (accounts) => {
   it('slash success', async () => {
     const slashInstance = await SlashIndicator.deployed();
-    const validatorInstance = await BSCValidatorSet.deployed();
+    const validatorInstance = await AXCValidatorSet.deployed();
 
     const accountOne = accounts[0];
 
@@ -28,7 +28,7 @@ contract('SlashIndicator', (accounts) => {
 
   it('slash from no system account', async () => {
     const slashInstance = await SlashIndicator.deployed();
-    const validatorInstance = await BSCValidatorSet.deployed();
+    const validatorInstance = await AXCValidatorSet.deployed();
 
     const nonSystemAccount = accounts[1];
     let validatorAccounts = await validatorInstance.getMiningValidators.call();
@@ -46,7 +46,7 @@ contract('SlashIndicator', (accounts) => {
 contract('SlashIndicator: isOperator works', (accounts) => {
   it('isOperator works', async () => {
     const slashInstance = await SlashIndicator.deployed();
-    const validatorInstance = await BSCValidatorSet.deployed();
+    const validatorInstance = await AXCValidatorSet.deployed();
 
     const accountOne = accounts[0];
     let validatorAccounts = await validatorInstance.getMiningValidators.call();
@@ -66,7 +66,7 @@ contract('SlashIndicator: isOperator works', (accounts) => {
 contract('SlashIndicator: catch emit event', (accounts) => {
   it('catch emit event', async () => {
       const slashInstance = await SlashIndicator.deployed();
-      const validatorInstance = await BSCValidatorSet.deployed();
+      const validatorInstance = await AXCValidatorSet.deployed();
   
       const accountOne = accounts[0];
       let validatorAccounts = await validatorInstance.getMiningValidators.call();
@@ -84,7 +84,7 @@ contract('SlashIndicator: catch emit event', (accounts) => {
 contract('SlashIndicator', (accounts) => {
   it('trigger misdemeanor', async () => {
     const slashInstance = await SlashIndicator.deployed();
-    const validatorSetInstance = await BSCValidatorSet.deployed();
+    const validatorSetInstance = await AXCValidatorSet.deployed();
     const systemRewardInstance = await SystemReward.deployed();
 
     const systemAccount = accounts[0];
@@ -158,7 +158,7 @@ contract('SlashIndicator', (accounts) => {
 contract('felony SlashIndicator', (accounts) => {
   it('trigger felony ', async () => {
     const slashInstance = await SlashIndicator.deployed();
-    const validatorSetInstance = await BSCValidatorSet.deployed();
+    const validatorSetInstance = await AXCValidatorSet.deployed();
 
     const systemAccount = accounts[0];
     let validator = accounts[0];
@@ -243,7 +243,7 @@ contract('felony SlashIndicator', (accounts) => {
 contract('Clean SlashIndicator', (accounts) => {
   it('test slash clean', async () => {
     const slashInstance = await SlashIndicator.deployed();
-    const validatorSetInstance = await BSCValidatorSet.deployed();
+    const validatorSetInstance = await AXCValidatorSet.deployed();
     let newValidator = web3.eth.accounts.create();
     let relayerAccount = accounts[8];
     const accountOne = accounts[0];
@@ -338,7 +338,7 @@ contract('Clean SlashIndicator', (accounts) => {
 });
 
 
-function validatorUpdateRlpEncode(consensusAddrList,feeAddrList, bscFeeAddrList) {
+function validatorUpdateRlpEncode(consensusAddrList,feeAddrList, axcFeeAddrList) {
   let pkg = [];
   pkg.push(0x00);
   let n = consensusAddrList.length;
@@ -347,7 +347,7 @@ function validatorUpdateRlpEncode(consensusAddrList,feeAddrList, bscFeeAddrList)
     vals.push([
       consensusAddrList[i].toString(),
       feeAddrList[i].toString(),
-      bscFeeAddrList[i].toString(),
+      axcFeeAddrList[i].toString(),
       0x0000000000000064,
     ]);
   }

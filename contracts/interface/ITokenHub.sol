@@ -16,8 +16,8 @@ interface ITokenHub {
     external payable returns (bool);
 
   /* solium-disable-next-line */
-  function batchTransferOutBNB(address[] calldata recipientAddrs, uint256[] calldata amounts, address[] calldata refundAddrs,
+  function batchTransferOutAXC(address[] calldata recipientAddrs, uint256[] calldata amounts, address[] calldata refundAddrs,
     uint64 expireTime) external payable returns (bool);
 
-  function withdrawStakingBNB(uint256 amount) external returns(bool);
+  function withdrawStakingAXC(uint256 amount) external returns(bool);
 }

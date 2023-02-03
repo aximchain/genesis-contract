@@ -20,7 +20,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
   using RLPDecode for RLPDecode.RLPItem;
   using RLPDecode for RLPDecode.Iterator;
 
-  // BC to BSC
+  // ABC to AXC
   struct BindSynPackage {
     uint8   packageType;
     bytes32 bep2TokenSymbol;
@@ -31,13 +31,13 @@ contract TokenManager is System, IApplication, IParamSubscriber {
     uint64  expireTime;
   }
 
-  // BSC to BC
+  // AXC to ABC
   struct ReactBindSynPackage {
     uint32 status;
     bytes32 bep2TokenSymbol;
   }
 
-  // BSC to BC
+  // AXC to ABC
   struct MirrorSynPackage {
     address mirrorSender;
     address bep20Addr;
@@ -49,7 +49,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
     uint64  expireTime;
   }
 
-  // BC to BSC
+  // ABC to AXC
   struct MirrorAckPackage {
     address mirrorSender;
     address bep20Addr;
@@ -59,7 +59,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
     uint8   errorCode;
   }
 
-  // BSC to BC
+  // AXC to ABC
   struct SyncSynPackage {
     address syncSender;
     address bep20Addr;
@@ -69,7 +69,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
     uint64  expireTime;
   }
 
-  // BC to BSC
+  // ABC to AXC
   struct SyncAckPackage {
     address syncSender;
     address bep20Addr;
@@ -92,7 +92,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
   uint8 constant public MIRROR_CHANNELID = 0x04;
   uint8 constant public SYNC_CHANNELID = 0x05;
   uint8 constant public BEP2_TOKEN_DECIMALS = 8;
-  uint256 constant public MAX_GAS_FOR_TRANSFER_BNB=10000;
+  uint256 constant public MAX_GAS_FOR_TRANSFER_AXC=10000;
   uint256 constant public MAX_BEP2_TOTAL_SUPPLY = 9000000000000000000;
   uint256 constant public LOG_MAX_UINT256 = 77;
   // mirror status
@@ -381,7 +381,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
       emit mirrorSuccess(mirrorAckPackage.bep20Addr, mirrorAckPackage.bep2Symbol);
       return;
     } else {
-      (bool success, ) = mirrorAckPackage.mirrorSender.call{gas: MAX_GAS_FOR_TRANSFER_BNB, value: mirrorAckPackage.mirrorFee}("");
+      (bool success, ) = mirrorAckPackage.mirrorSender.call{gas: MAX_GAS_FOR_TRANSFER_AXC, value: mirrorAckPackage.mirrorFee}("");
       if (!success) {
         address(uint160(SYSTEM_REWARD_ADDR)).transfer(mirrorAckPackage.mirrorFee);
       }
@@ -393,7 +393,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
     (MirrorSynPackage memory mirrorSynPackage, bool decodeSuccess) = decodeMirrorSynPackage(msgBytes);
     require(decodeSuccess, "unrecognized package");
     mirrorPendingRecord[mirrorSynPackage.bep20Addr] = false;
-    (bool success, ) = mirrorSynPackage.mirrorSender.call{gas: MAX_GAS_FOR_TRANSFER_BNB, value: mirrorSynPackage.mirrorFee.mul(TEN_DECIMALS)}("");
+    (bool success, ) = mirrorSynPackage.mirrorSender.call{gas: MAX_GAS_FOR_TRANSFER_AXC, value: mirrorSynPackage.mirrorFee.mul(TEN_DECIMALS)}("");
     if (!success) {
       address(uint160(SYSTEM_REWARD_ADDR)).transfer(mirrorSynPackage.mirrorFee.mul(TEN_DECIMALS));
     }
@@ -484,7 +484,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
     } else  {
       emit syncFailure(syncAckPackage.bep20Addr, syncAckPackage.errorCode);
     }
-    (bool success, ) = syncAckPackage.syncSender.call{gas: MAX_GAS_FOR_TRANSFER_BNB, value: syncAckPackage.syncFee}("");
+    (bool success, ) = syncAckPackage.syncSender.call{gas: MAX_GAS_FOR_TRANSFER_AXC, value: syncAckPackage.syncFee}("");
     if (!success) {
       address(uint160(SYSTEM_REWARD_ADDR)).transfer(syncAckPackage.syncFee);
     }
@@ -493,7 +493,7 @@ contract TokenManager is System, IApplication, IParamSubscriber {
   function handleSyncFailAckPackage(bytes memory msgBytes) internal {
     (SyncSynPackage memory syncSynPackage, bool decodeSuccess) = decodeSyncSynPackage(msgBytes);
     require(decodeSuccess, "unrecognized package");
-    (bool success, ) = syncSynPackage.syncSender.call{gas: MAX_GAS_FOR_TRANSFER_BNB, value: syncSynPackage.syncFee.mul(TEN_DECIMALS)}("");
+    (bool success, ) = syncSynPackage.syncSender.call{gas: MAX_GAS_FOR_TRANSFER_AXC, value: syncSynPackage.syncFee.mul(TEN_DECIMALS)}("");
     if (!success) {
       address(uint160(SYSTEM_REWARD_ADDR)).transfer(syncSynPackage.syncFee.mul(TEN_DECIMALS));
     }

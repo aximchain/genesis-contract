@@ -6,7 +6,7 @@ const validators = [
   {
     consensusAddr: "0x9fB29AAc15b9A4B7F17c3385939b007540f4d791",
     feeAddr: "0x9fB29AAc15b9A4B7F17c3385939b007540f4d791",
-    bscFeeAddr: "0x9fB29AAc15b9A4B7F17c3385939b007540f4d791",
+    axcFeeAddr: "0x9fB29AAc15b9A4B7F17c3385939b007540f4d791",
     votingPower: 0x0000000000000064
   }
 ];
@@ -35,7 +35,7 @@ function validatorUpdateRlpEncode(validators) {
   for(let i = 0;i<n;i++) {
     vals.push([
       validators[i].consensusAddr,
-      validators[i].bscFeeAddr,
+      validators[i].axcFeeAddr,
       validators[i].feeAddr,
       validators[i].votingPower,
     ]);

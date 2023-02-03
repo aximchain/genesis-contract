@@ -16,8 +16,8 @@ program.option(
     "./contracts/CrossChain.sol"
 )
 
-program.option("--bscChainId <bscChainId>",
-    "bsc chain id",
+program.option("--axcChainId <axcChainId>",
+    "axc chain id",
     "0060");
 
 program.option("--initBatchSizeForOracle <initBatchSizeForOracle>",
@@ -31,7 +31,7 @@ program.option("--mock <mock>",
 program.parse(process.argv);
 
 const data = {
-  bscChainId: program.bscChainId,
+  axcChainId: program.axcChainId,
   initBatchSizeForOracle: program.initBatchSizeForOracle,
   mock: program.mock,
 };
