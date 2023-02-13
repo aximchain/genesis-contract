@@ -8,6 +8,6 @@
     "typeRoots": ["./typechain", "./node_modules/@types"],
     "types": ["@nomiclabs/hardhat-ethers", "@nomiclabs/hardhat-waffle"]
   },
-  "include": ["./test/test-maintenance", "./typechain"],
+  "include": ["./test/test-maintenance", "./typechain", "generate-relayerhub.js"],
   "files": ["./hardhat.config.ts"]
 }
