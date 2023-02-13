@@ -8,8 +8,8 @@ const validators = require("./validators")
 const init_holders = require("./init_holders")
 
 
-program.option("--bscChainId <bscChainId>",
-    "bscChainId",
+program.option("--ascChainId <ascChainId>",
+    "ascChainId",
     "0060");
 program.option("-c, --chainid <chainid>", "chain id", "714")
 
@@ -93,8 +93,8 @@ function compileContract(key, contractFile, contractName) {
 Promise.all([
   compileContract(
     "validatorContract",
-    "contracts/BSCValidatorSet.sol",
-    "BSCValidatorSet"
+    "contracts/ASCValidatorSet.sol",
+    "ASCValidatorSet"
   ),
   compileContract(
     "systemRewardContract",
@@ -148,12 +148,12 @@ Promise.all([
   )
 ]).then(result => {
 
-program.option("--initLockedBNBOnTokenHub <initLockedBNBOnTokenHub>",
-    "initLockedBNBOnTokenHub",
+program.option("--initLockedAXCOnTokenHub <initLockedAXCOnTokenHub>",
+    "initLockedAXCOnTokenHub",
     "176405560900000000000000000");
 
   const data = {
-    initLockedBNBOnTokenHub: program.initLockedBNBOnTokenHub,
+    initLockedAXCOnTokenHub: program.initLockedAXCOnTokenHub,
     chainId: program.chainid,
     initHolders: init_holders,
     extraData: web3.utils.bytesToHex(validators.extraValidatorBytes)

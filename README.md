@@ -1,4 +1,4 @@
-# bsc-genesis-contracts
+# asc-genesis-contracts
 
 This repo hold all the genesis contracts on Binance Smart chain. More details in [doc-site](https://docs.bnbchain.org/docs/learn/system-contract).
 
@@ -56,7 +56,7 @@ npm run flatten
 
 ## how to generate genesis file.
  
-1. Edit `init_holders.js` file to alloc the initial BNB holder.
+1. Edit `init_holders.js` file to alloc the initial AXC holder.
 2. Edit `validators.js` file to alloc the initial validator set.
 3. Edit `generate-validatorset.js` file to change `fromChainId` and `toChainId`,
 4. Edit `generate-tokenhub.js` file to change `refundRelayReward`, `minimumRelayFee` and `maxGasForCallingBEP20`.

@@ -8,20 +8,20 @@ import "./interface/ISlashIndicator.sol";
 import "./interface/ITokenHub.sol";
 import "./interface/IRelayerHub.sol";
 import "./interface/IParamSubscriber.sol";
-import "./interface/IBSCValidatorSet.sol";
+import "./interface/IASCValidatorSet.sol";
 import "./interface/IApplication.sol";
 import "./lib/SafeMath.sol";
 import "./lib/RLPDecode.sol";
 import "./lib/CmnPkg.sol";
 
 
-contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplication {
+contract ASCValidatorSet is IASCValidatorSet, System, IParamSubscriber, IApplication {
 
   using SafeMath for uint256;
 
   using RLPDecode for *;
 
-  // will not transfer value less than 0.1 BNB for validators
+  // will not transfer value less than 0.1 AXC for validators
   uint256 constant public DUSTY_INCOMING = 1e17;
 
   uint8 public constant JAIL_MESSAGE_TYPE = 1;
@@ -77,7 +77,7 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
   struct Validator{
     address consensusAddress;
     address payable feeAddress;
-    address BBCFeeAddress;
+    address AFCFeeAddress;
     uint64  votingPower;
 
     // only in state
@@ -288,10 +288,10 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
     }
     for (uint i; i < validatorsNum; ++i) {
       if (currentValidatorSet[i].incoming >= DUSTY_INCOMING) {
-        crossAddrs[crossSize] = currentValidatorSet[i].BBCFeeAddress;
+        crossAddrs[crossSize] = currentValidatorSet[i].AFCFeeAddress;
         uint256 value = currentValidatorSet[i].incoming - currentValidatorSet[i].incoming % PRECISION;
         crossAmounts[crossSize] = value.sub(relayFee);
-        crossRefundAddrs[crossSize] = currentValidatorSet[i].BBCFeeAddress;
+        crossRefundAddrs[crossSize] = currentValidatorSet[i].AFCFeeAddress;
         crossIndexes[crossSize] = i;
         crossTotal = crossTotal.add(value);
         crossSize ++;
@@ -305,7 +305,7 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
     //step 2: do cross chain transfer
     bool failCross = false;
     if (crossTotal > 0) {
-      try ITokenHub(TOKEN_HUB_ADDR).batchTransferOutBNB{value:crossTotal}(crossAddrs, crossAmounts, crossRefundAddrs, uint64(block.timestamp + expireTimeSecondGap)) returns (bool success) {
+      try ITokenHub(TOKEN_HUB_ADDR).batchTransferOutAXC{value:crossTotal}(crossAddrs, crossAmounts, crossRefundAddrs, uint64(block.timestamp + expireTimeSecondGap)) returns (bool success) {
         if (success) {
            emit batchTransfer(crossTotal);
         } else {
@@ -657,7 +657,7 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
   }
 
   function isSameValidator(Validator memory v1, Validator memory v2) private pure returns(bool) {
-    return v1.consensusAddress == v2.consensusAddress && v1.feeAddress == v2.feeAddress && v1.BBCFeeAddress == v2.BBCFeeAddress && v1.votingPower == v2.votingPower;
+    return v1.consensusAddress == v2.consensusAddress && v1.feeAddress == v2.feeAddress && v1.AFCFeeAddress == v2.AFCFeeAddress && v1.votingPower == v2.votingPower;
   }
 
   function _misdemeanor(address validator) private returns (uint256) {
@@ -853,7 +853,7 @@ contract BSCValidatorSet is IBSCValidatorSet, System, IParamSubscriber, IApplica
       } else if (idx == 1) {
         validator.feeAddress = address(uint160(iter.next().toAddress()));
       } else if (idx == 2) {
-        validator.BBCFeeAddress = iter.next().toAddress();
+        validator.AFCFeeAddress = iter.next().toAddress();
       } else if (idx == 3) {
         validator.votingPower = uint64(iter.next().toUint());
         success = true;

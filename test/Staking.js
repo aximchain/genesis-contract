@@ -8,7 +8,7 @@ const CrossChain = artifacts.require("CrossChain");
 const RelayerHub = artifacts.require("RelayerHub");
 const GovHub = artifacts.require("GovHub");
 const Staking = artifacts.require("Staking");
-const BSCValidatorSet = artifacts.require("BSCValidatorSet");
+const ASCValidatorSet = artifacts.require("ASCValidatorSet");
 
 const RLP = require('rlp');
 const Web3 = require('web3');
@@ -244,7 +244,7 @@ contract('Staking', (accounts) => {
 		let amount = web3.utils.toBN(1e20);
 		let relayFee = web3.utils.toBN(2e16);
 		await stakingInstance.delegate(validator, amount, {from: delegator, value: amount.add(relayFee)});
-		await stakingInstance.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address,
+		await stakingInstance.updateContractAddr(ASCValidatorSet.address, SlashIndicator.address, SystemReward.address,
 			LightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address,
 			TokenManager.address, relayerAccount, Staking.address);
 
@@ -330,7 +330,7 @@ contract('Staking', (accounts) => {
 		let amount = web3.utils.toBN(1e20);
 		let relayFee = web3.utils.toBN(2e16);
 		await stakingInstance.delegate(validator, amount, {from: delegator, value: amount.add(relayFee)});
-		await stakingInstance.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address,
+		await stakingInstance.updateContractAddr(ASCValidatorSet.address, SlashIndicator.address, SystemReward.address,
 			LightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address,
 			TokenManager.address, relayerAccount, Staking.address);
 
@@ -364,7 +364,7 @@ contract('Staking', (accounts) => {
 		let relayFee = web3.utils.toBN(2e16);
 		await stakingInstance.delegate(validator, amount, {from: delegator, value: amount.add(relayFee)});
 		await stakingInstance.undelegate(validator, amount, {from: delegator, value: relayFee});
-		await stakingInstance.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address,
+		await stakingInstance.updateContractAddr(ASCValidatorSet.address, SlashIndicator.address, SystemReward.address,
 			LightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address,
 			TokenManager.address, relayerAccount, Staking.address);
 
@@ -399,7 +399,7 @@ contract('Staking', (accounts) => {
 		let relayFee = web3.utils.toBN(2e16);
 		await stakingInstance.delegate(validatorSrc, amount, {from: delegator, value: amount.add(relayFee)});
 		await stakingInstance.redelegate(validatorSrc, validatorDst, amount, {from: delegator, value: relayFee});
-		await stakingInstance.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address,
+		await stakingInstance.updateContractAddr(ASCValidatorSet.address, SlashIndicator.address, SystemReward.address,
 			LightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address,
 			TokenManager.address, relayerAccount, Staking.address);
 

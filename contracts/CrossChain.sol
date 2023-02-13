@@ -252,7 +252,7 @@ contract CrossChain is System, ICrossChain, IParamSubscriber{
         txCounter = 1;
       }
     }
-    emit crossChainPackage(bscChainID, uint64(oracleSequence), packageSequence, channelId, payload);
+    emit crossChainPackage(ascChainID, uint64(oracleSequence), packageSequence, channelId, payload);
   }
 
   function sendSynPackage(uint8 channelId, bytes calldata msgBytes, uint256 relayFee) onlyInit onlyRegisteredContractChannel(channelId) external override {

@@ -18,15 +18,15 @@ program.option("--mock <mock>",
     "if use mock",
     false);
 
-program.option("--bscChainId <bscChainId>",
-    "bscChainId",
+program.option("--ascChainId <ascChainId>",
+    "ascChainId",
     "0060");
 
 program.parse(process.argv);
 
 const data = {
   fromChainId: program.fromChainId,
-  bscChainId: program.bscChainId,
+  ascChainId: program.ascChainId,
   mock: program.mock,
 };
 const templateString = fs.readFileSync(program.template).toString();
