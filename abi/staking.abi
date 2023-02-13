@@ -504,7 +504,7 @@
   },
   {
     "inputs": [],
-    "name": "ERROR_WITHDRAW_BNB",
+    "name": "ERROR_WITHDRAW_AXC",
     "outputs": [
       {
         "internalType": "uint32",
@@ -621,7 +621,7 @@
   },
   {
     "inputs": [],
-    "name": "INIT_BSC_RELAYER_FEE",
+    "name": "INIT_ASC_RELAYER_FEE",
     "outputs": [
       {
         "internalType": "uint256",
