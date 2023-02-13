@@ -28,8 +28,8 @@ program.option("--maxGasForCallingBEP20 <maxGasForCallingBEP20>",
     "maxGasForCallingBEP20",
     "50000");
 
-program.option("--maxGasForTransferringBNB <maxGasForTransferringBNB>",
-    "maxGasForTransferringBNB",
+program.option("--maxGasForTransferringAXC <maxGasForTransferringAXC>",
+    "maxGasForTransferringAXC",
     "10000");
 
 program.option("--mock <mock>",
@@ -42,7 +42,7 @@ const data = {
     initRelayFee: program.initRelayFee,
     rewardUpperLimit: program.rewardUpperLimit,
     maxGasForCallingBEP20: program.maxGasForCallingBEP20,
-    maxGasForTransferringBNB: program.maxGasForTransferringBNB,
+    maxGasForTransferringAXC: program.maxGasForTransferringAXC,
     mock: program.mock,
 };
 const templateString = fs.readFileSync(program.template).toString();

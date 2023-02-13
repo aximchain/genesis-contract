@@ -32,13 +32,13 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
   uint8 public constant CODE_SUCCESS = 1;
 
   // Error code
-  uint32 public constant ERROR_WITHDRAW_BNB = 101;
+  uint32 public constant ERROR_WITHDRAW_AXC = 101;
 
   uint256 public constant TEN_DECIMALS = 1e10;
   uint256 public constant LOCK_TIME = 8 days; // 8*24*3600 second
 
   uint256 public constant INIT_RELAYER_FEE = 16 * 1e15;
-  uint256 public constant INIT_BSC_RELAYER_FEE = 1 * 1e16;
+  uint256 public constant INIT_ASC_RELAYER_FEE = 1 * 1e16;
   uint256 public constant INIT_MIN_DELEGATION = 100 * 1e18;
   uint256 public constant INIT_TRANSFER_GAS = 2300;
 
@@ -79,7 +79,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
   modifier initParams() {
     if (!alreadyInit) {
       relayerFee = INIT_RELAYER_FEE;
-      bSCRelayerFee = INIT_BSC_RELAYER_FEE;
+      bSCRelayerFee = INIT_ASC_RELAYER_FEE;
       minDelegation = INIT_MIN_DELEGATION;
       transferGas = INIT_TRANSFER_GAS;
       alreadyInit = true;
@@ -199,7 +199,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     (bool success,) = msg.sender.call{gas: transferGas}("");
     require(success, "invalid delegator"); // the msg sender must be payable
 
-    uint256 convertedAmount = amount.div(TEN_DECIMALS); // native bnb decimals is 8 on BBC, while the native bnb decimals on BSC is 18
+    uint256 convertedAmount = amount.div(TEN_DECIMALS); // native axc decimals is 8 on AFC, while the native axc decimals on ASC is 18
     uint256 _relayerFee = (msg.value).sub(amount);
     uint256 oracleRelayerFee = _relayerFee.sub(bSCRelayerFee);
 
@@ -231,7 +231,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
       require(remainBalance > bSCRelayerFee, "insufficient balance after undelegate");
     }
 
-    uint256 convertedAmount = amount.div(TEN_DECIMALS); // native bnb decimals is 8 on BBC, while the native bnb decimals on BSC is 18
+    uint256 convertedAmount = amount.div(TEN_DECIMALS); // native axc decimals is 8 on AFC, while the native axc decimals on ASC is 18
     uint256 _relayerFee = msg.value;
     uint256 oracleRelayerFee = _relayerFee.sub(bSCRelayerFee);
 
@@ -264,7 +264,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
       require(remainBalance > bSCRelayerFee, "insufficient balance after redelegate");
     }
 
-    uint256 convertedAmount = amount.div(TEN_DECIMALS);// native bnb decimals is 8 on BBC, while the native bnb decimals on BSC is 18
+    uint256 convertedAmount = amount.div(TEN_DECIMALS);// native axc decimals is 8 on AFC, while the native axc decimals on ASC is 18
     uint256 _relayerFee = msg.value;
     uint256 oracleRelayerFee = _relayerFee.sub(bSCRelayerFee);
 
@@ -384,16 +384,16 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
       require(value.length == 32, "length of relayerFee mismatch");
       uint256 newRelayerFee = BytesToTypes.bytesToUint256(32, value);
       require(newRelayerFee < minDelegation, "the relayerFee must be less than minDelegation");
-      require(newRelayerFee > bSCRelayerFee, "the relayerFee must be more than BSCRelayerFee");
+      require(newRelayerFee > bSCRelayerFee, "the relayerFee must be more than ASCRelayerFee");
       require(newRelayerFee%TEN_DECIMALS==0, "the relayerFee mod ten decimals must be zero");
       relayerFee = newRelayerFee;
     } else if (Memory.compareStrings(key, "bSCRelayerFee")) {
       require(value.length == 32, "length of bSCRelayerFee mismatch");
-      uint256 newBSCRelayerFee = BytesToTypes.bytesToUint256(32, value);
-      require(newBSCRelayerFee != 0, "the BSCRelayerFee must not be zero");
-      require(newBSCRelayerFee < relayerFee, "the BSCRelayerFee must be less than relayerFee");
-      require(newBSCRelayerFee%TEN_DECIMALS==0, "the BSCRelayerFee mod ten decimals must be zero");
-      bSCRelayerFee = newBSCRelayerFee;
+      uint256 newASCRelayerFee = BytesToTypes.bytesToUint256(32, value);
+      require(newASCRelayerFee != 0, "the ASCRelayerFee must not be zero");
+      require(newASCRelayerFee < relayerFee, "the ASCRelayerFee must be less than relayerFee");
+      require(newASCRelayerFee%TEN_DECIMALS==0, "the ASCRelayerFee mod ten decimals must be zero");
+      bSCRelayerFee = newASCRelayerFee;
     } else if (Memory.compareStrings(key, "minDelegation")) {
       require(value.length == 32, "length of minDelegation mismatch");
       uint256 newMinDelegation = BytesToTypes.bytesToUint256(32, value);
@@ -416,14 +416,14 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     uint256 idx;
     address delegator;
     address validator;
-    uint256 bcAmount;
+    uint256 fcAmount;
     while (paramIter.hasNext()) {
       if (idx == 0) {
         delegator = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 1) {
         validator = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 2) {
-        bcAmount = uint256(paramIter.next().toUint());
+        fcAmount = uint256(paramIter.next().toUint());
         success = true;
       } else {
         break;
@@ -432,7 +432,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     }
     require(success, "rlp decode failed");
 
-    uint256 amount = bcAmount.mul(TEN_DECIMALS);
+    uint256 amount = fcAmount.mul(TEN_DECIMALS);
     delegateInFly[delegator] -= 1;
     if (status == CODE_SUCCESS) {
       require(errCode == 0, "wrong status");
@@ -442,7 +442,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
       emit delegateSuccess(delegator, validator, amount);
     } else if (status == CODE_FAILED) {
       undelegated[delegator] = undelegated[delegator].add(amount);
-      require(ITokenHub(TOKEN_HUB_ADDR).withdrawStakingBNB(amount), "withdraw bnb failed");
+      require(ITokenHub(TOKEN_HUB_ADDR).withdrawStakingAXC(amount), "withdraw axc failed");
 
       emit delegateFailed(delegator, validator, amount, errCode);
     } else {
@@ -455,14 +455,14 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     uint256 idx;
     address delegator;
     address validator;
-    uint256 bcAmount;
+    uint256 fcAmount;
     while (paramIter.hasNext()) {
       if (idx == 0) {
         delegator = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 1) {
         validator = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 2) {
-        bcAmount = uint256(paramIter.next().toUint());
+        fcAmount = uint256(paramIter.next().toUint());
         success = true;
       } else {
         break;
@@ -471,10 +471,10 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     }
     require(success, "rlp decode failed");
 
-    uint256 amount = bcAmount.mul(TEN_DECIMALS);
+    uint256 amount = fcAmount.mul(TEN_DECIMALS);
     delegateInFly[delegator] -= 1;
     undelegated[delegator] = undelegated[delegator].add(amount);
-    require(ITokenHub(TOKEN_HUB_ADDR).withdrawStakingBNB(amount), "withdraw bnb failed");
+    require(ITokenHub(TOKEN_HUB_ADDR).withdrawStakingAXC(amount), "withdraw axc failed");
 
     emit crashResponse(EVENT_DELEGATE);
   }
@@ -484,14 +484,14 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     uint256 idx;
     address delegator;
     address validator;
-    uint256 bcAmount;
+    uint256 fcAmount;
     while (paramIter.hasNext()) {
       if (idx == 0) {
         delegator = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 1) {
         validator = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 2) {
-        bcAmount = uint256(paramIter.next().toUint());
+        fcAmount = uint256(paramIter.next().toUint());
         success = true;
       } else {
         break;
@@ -500,7 +500,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     }
     require(success, "rlp decode failed");
 
-    uint256 amount = bcAmount.mul(TEN_DECIMALS);
+    uint256 amount = fcAmount.mul(TEN_DECIMALS);
     undelegateInFly[delegator] -= 1;
     if (status == CODE_SUCCESS) {
       require(errCode == 0, "wrong status");
@@ -522,14 +522,14 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     uint256 idx;
     address delegator;
     address validator;
-    uint256 bcAmount;
+    uint256 fcAmount;
     while (paramIter.hasNext()) {
       if (idx == 0) {
         delegator = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 1) {
         validator = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 2) {
-        bcAmount = uint256(paramIter.next().toUint());
+        fcAmount = uint256(paramIter.next().toUint());
         success = true;
       } else {
         break;
@@ -550,7 +550,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     address delegator;
     address valSrc;
     address valDst;
-    uint256 bcAmount;
+    uint256 fcAmount;
     while (paramIter.hasNext()) {
       if (idx == 0) {
         delegator = address(uint160(paramIter.next().toAddress()));
@@ -559,7 +559,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
       } else if (idx == 2) {
         valDst = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 3) {
-        bcAmount = uint256(paramIter.next().toUint());
+        fcAmount = uint256(paramIter.next().toUint());
         success = true;
       } else {
         break;
@@ -568,7 +568,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     }
     require(success, "rlp decode failed");
 
-    uint256 amount = bcAmount.mul(TEN_DECIMALS);
+    uint256 amount = fcAmount.mul(TEN_DECIMALS);
     redelegateInFly[delegator] -= 1;
     if (status == CODE_SUCCESS) {
       require(errCode == 0, "wrong status");
@@ -593,7 +593,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     address delegator;
     address valSrc;
     address valDst;
-    uint256 bcAmount;
+    uint256 fcAmount;
     while (paramIter.hasNext()) {
       if (idx == 0) {
         delegator = address(uint160(paramIter.next().toAddress()));
@@ -602,7 +602,7 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
       } else if (idx == 2) {
         valDst = address(uint160(paramIter.next().toAddress()));
       } else if (idx == 3) {
-        bcAmount = uint256(paramIter.next().toUint());
+        fcAmount = uint256(paramIter.next().toUint());
         success = true;
       } else {
         break;
@@ -636,9 +636,9 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     }
     require(success, "rlp decode failed");
 
-    bool ok = ITokenHub(TOKEN_HUB_ADDR).withdrawStakingBNB(amount);
+    bool ok = ITokenHub(TOKEN_HUB_ADDR).withdrawStakingAXC(amount);
     if (!ok) {
-      return _encodeRefundPackage(EVENT_DISTRIBUTE_REWARD, recipient, amount, ERROR_WITHDRAW_BNB);
+      return _encodeRefundPackage(EVENT_DISTRIBUTE_REWARD, recipient, amount, ERROR_WITHDRAW_AXC);
     }
 
     distributedReward[recipient] = distributedReward[recipient].add(amount);
@@ -668,9 +668,9 @@ contract Staking is IStaking, System, IParamSubscriber, IApplication {
     }
     require(success, "rlp decode failed");
 
-    bool ok = ITokenHub(TOKEN_HUB_ADDR).withdrawStakingBNB(amount);
+    bool ok = ITokenHub(TOKEN_HUB_ADDR).withdrawStakingAXC(amount);
     if (!ok) {
-      return _encodeRefundPackage(EVENT_DISTRIBUTE_UNDELEGATED, recipient, amount, ERROR_WITHDRAW_BNB);
+      return _encodeRefundPackage(EVENT_DISTRIBUTE_UNDELEGATED, recipient, amount, ERROR_WITHDRAW_AXC);
     }
 
     pendingUndelegateTime[recipient][validator] = 0;

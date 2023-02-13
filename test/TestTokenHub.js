@@ -16,7 +16,7 @@ const MiniToken = artifacts.require("test/MiniToken");
 const MaliciousToken = artifacts.require("test/MaliciousToken");
 const RelayerHub = artifacts.require("RelayerHub");
 const GovHub = artifacts.require("GovHub");
-const BSCValidatorSet = artifacts.require("BSCValidatorSet");
+const ASCValidatorSet = artifacts.require("ASCValidatorSet");
 const SlashIndicator = artifacts.require("SlashIndicator");
 
 const crypto = require('crypto');
@@ -420,7 +420,7 @@ contract('TokenHub', (accounts) => {
         let tokenManagerBalance = await web3.eth.getBalance(tokenManager.address);
         assert.equal(tokenManagerBalance, "0", "tokenManager balance should be zero");
     });
-    it('Relayer transfer from BC to BSC', async () => {
+    it('Relayer transfer from FC to ASC', async () => {
         const tokenHub = await TokenHub.deployed();
         const abcToken = await ABCToken.deployed();
         const crossChain = await CrossChain.deployed();
@@ -438,7 +438,7 @@ contract('TokenHub', (accounts) => {
         balance = await abcToken.balanceOf.call(accounts[2]);
         assert.equal(balance.eq(web3.utils.toBN(155e17)), true, "wrong balance");
     });
-    it('Expired transfer from BC to BSC', async () => {
+    it('Expired transfer from FC to ASC', async () => {
         const tokenHub = await TokenHub.deployed();
         const abcToken = await ABCToken.deployed();
         const crossChain = await CrossChain.deployed();
@@ -469,12 +469,12 @@ contract('TokenHub', (accounts) => {
         let balance = await abcToken.balanceOf.call(accounts[2]);
         assert.equal(balance.eq(web3.utils.toBN(155e17)), true, "wrong balance");
     });
-    it('Relayer BNB transfer from BC to BSC', async () => {
+    it('Relayer AXC transfer from FC to ASC', async () => {
         const tokenHub = await TokenHub.deployed();
         const crossChain = await CrossChain.deployed();
         const relayer = accounts[1];
 
-        let transferInPackage = buildTransferInPackage("BNB", "0x0000000000000000000000000000000000000000", 1e18, accounts[2], "0x35d9d41a13d6c2e01c9b1e242baf2df98e7e8c48");
+        let transferInPackage = buildTransferInPackage("AXC", "0x0000000000000000000000000000000000000000", 1e18, accounts[2], "0x35d9d41a13d6c2e01c9b1e242baf2df98e7e8c48");
         let transferInSequence = await crossChain.channelReceiveSequenceMap.call(TRANSFER_IN_CHANNELID);
         let initBalance = await web3.eth.getBalance(accounts[2]);
         let tx = await crossChain.handlePackage(transferInPackage, proof, merkleHeight, transferInSequence, TRANSFER_IN_CHANNELID, {from: relayer});
@@ -485,18 +485,18 @@ contract('TokenHub', (accounts) => {
         assert.equal(web3.utils.toBN(newBalance).sub(web3.utils.toBN(initBalance)).eq(web3.utils.toBN(1e18)), true, "wrong balance");
 
         //try a very large relayer fee: 2e18
-        transferInPackage = buildTransferInPackageWithRelayFee("BNB", "0x0000000000000000000000000000000000000000", 1e18, accounts[2], "0x35d9d41a13d6c2e01c9b1e242baf2df98e7e8c48", 2e18);
+        transferInPackage = buildTransferInPackageWithRelayFee("AXC", "0x0000000000000000000000000000000000000000", 1e18, accounts[2], "0x35d9d41a13d6c2e01c9b1e242baf2df98e7e8c48", 2e18);
         transferInSequence = await crossChain.channelReceiveSequenceMap.call(TRANSFER_IN_CHANNELID);
         tx = await crossChain.handlePackage(transferInPackage, proof, merkleHeight, transferInSequence, TRANSFER_IN_CHANNELID, {from: relayer});
         nestedEvents = (await truffleAssert.createTransactionResult(tokenHub, tx.tx)).logs;
         assert.equal(nestedEvents.length, 1, "wrong event number");
     });
-    it('BNB transfer to non-payable address', async () => {
+    it('AXC transfer to non-payable address', async () => {
         const crossChain = await CrossChain.deployed();
         const relayer = accounts[1];
 
         const tendermintLightClient = await TendermintLightClient.deployed();
-        const transferInPackage = buildTransferInPackage("BNB", "0x0000000000000000000000000000000000000000", 1e18, tendermintLightClient.address, "0x35d9d41a13d6c2e01c9b1e242baf2df98e7e8c48");
+        const transferInPackage = buildTransferInPackage("AXC", "0x0000000000000000000000000000000000000000", 1e18, tendermintLightClient.address, "0x35d9d41a13d6c2e01c9b1e242baf2df98e7e8c48");
         const transferInSequence = await crossChain.channelReceiveSequenceMap.call(TRANSFER_IN_CHANNELID);
         const tx = await crossChain.handlePackage(transferInPackage, proof, merkleHeight, transferInSequence, TRANSFER_IN_CHANNELID, {from: relayer});
         let event;
@@ -509,12 +509,12 @@ contract('TokenHub', (accounts) => {
             return matched;
         });
         let decoded = verifyPrefixAndExtractAckPackage(event.payload);
-        assert.equal(web3.utils.bytesToHex(decoded[0]), stringToBytes32("BNB"), "response should be empty");
+        assert.equal(web3.utils.bytesToHex(decoded[0]), stringToBytes32("AXC"), "response should be empty");
         assert.ok(web3.utils.bytesToHex(decoded[1]), web3.utils.toBN(1e8).toString(16), "response should be empty");
         assert.equal(web3.utils.bytesToHex(decoded[2]), "0x35d9d41a13d6c2e01c9b1e242baf2df98e7e8c48", "response should be empty");
         assert.equal(web3.utils.bytesToHex(decoded[3]), "0x04", "refund status should be non-payable recipient address");
     });
-    it('Transfer from BSC to BC', async () => {
+    it('Transfer from ASC to FC', async () => {
         const crossChain = await CrossChain.deployed();
         const tokenHub = await TokenHub.deployed();
         const abcToken = await ABCToken.deployed();
@@ -548,7 +548,7 @@ contract('TokenHub', (accounts) => {
             await tokenHub.transferOut(abcToken.address, recipient, amount, expireTime, {from: sender, value: relayFee});
             assert.fail();
         } catch (error) {
-            assert.ok(error.toString().includes("invalid received BNB amount: precision loss in amount conversion"));
+            assert.ok(error.toString().includes("invalid received AXC amount: precision loss in amount conversion"));
         }
 
         try {
@@ -556,7 +556,7 @@ contract('TokenHub', (accounts) => {
             await tokenHub.transferOut(abcToken.address, recipient, amount, expireTime, {from: sender, value: relayFee});
             assert.fail();
         } catch (error) {
-            assert.ok(error.toString().includes("received BNB amount should be no less than the minimum relayFee"));
+            assert.ok(error.toString().includes("received AXC amount should be no less than the minimum relayFee"));
         }
 
         relayFee = web3.utils.toBN(1e16);
@@ -581,7 +581,7 @@ contract('TokenHub', (accounts) => {
             await tokenHub.transferOut(abcToken.address, recipient, amount, expireTime, {from: sender});
             assert.fail();
         } catch (error) {
-            assert.ok(error.toString().includes("received BNB amount should be no less than the minimum relayFee"));
+            assert.ok(error.toString().includes("received AXC amount should be no less than the minimum relayFee"));
         }
         let tx = await tokenHub.transferOut(abcToken.address, recipient, amount, expireTime, {from: sender, value: relayFee});
         truffleAssert.eventEmitted(tx, "transferOutSuccess",(ev) => {
@@ -643,21 +643,21 @@ contract('TokenHub', (accounts) => {
         let expireTime = (timestamp + 150);
 
         try {
-            await tokenHub.batchTransferOutBNB(recipientAddrs, amounts, refundAddrs, expireTime, {from: sender, value: web3.utils.toBN(2000002e10)});
+            await tokenHub.batchTransferOutAXC(recipientAddrs, amounts, refundAddrs, expireTime, {from: sender, value: web3.utils.toBN(2000002e10)});
             assert.fail();
         } catch (error) {
             assert.ok(error.toString().includes("invalid transfer amount: precision loss in amount conversion"));
         }
 
         amounts = [web3.utils.toBN(1e16), web3.utils.toBN(2e16)];
-        let tx = await tokenHub.batchTransferOutBNB(recipientAddrs, amounts, refundAddrs, expireTime, {from: sender, value: web3.utils.toBN(5e16)});
+        let tx = await tokenHub.batchTransferOutAXC(recipientAddrs, amounts, refundAddrs, expireTime, {from: sender, value: web3.utils.toBN(5e16)});
         truffleAssert.eventEmitted(tx, "transferOutSuccess",(ev) => {
             return ev.amount.eq(web3.utils.toBN(3e16)) && ev.bep20Addr.toString().toLowerCase() === "0x0000000000000000000000000000000000000000";
         });
         assert.equal(tx.receipt.status, true, "failed transaction");
         let nestedEventValues = (await truffleAssert.createTransactionResult(crossChain, tx.tx)).logs[0].args;
         let decoded = verifyPrefixAndExtractSyncPackage(nestedEventValues.payload, 2e6);
-        assert.equal(web3.utils.bytesToHex(decoded[0]), stringToBytes32("BNB"), "wrong symbol");
+        assert.equal(web3.utils.bytesToHex(decoded[0]), stringToBytes32("AXC"), "wrong symbol");
         assert.equal(web3.utils.bytesToHex(decoded[1]), "0x0000000000000000000000000000000000000000", "wrong contract address");
         assert.ok(web3.utils.toBN(web3.utils.bytesToHex(decoded[2][0])).eq(web3.utils.toBN(1e6)), "wrong transferOut amount");
         assert.ok(web3.utils.toBN(web3.utils.bytesToHex(decoded[2][1])).eq(web3.utils.toBN(2e6)), "wrong transferOut amount");
@@ -717,7 +717,7 @@ contract('TokenHub', (accounts) => {
         let newRefundSequence = await crossChain.channelReceiveSequenceMap.call(TRANSFER_OUT_CHANNELID);
         assert.equal(newRefundSequence.toNumber(), refundSequence.toNumber()+1, "wrong transferIn sequence");
     });
-    it('Uint256 overflow in transferOut and batchTransferOutBNB', async () => {
+    it('Uint256 overflow in transferOut and batchTransferOutAXC', async () => {
         const tokenHub = await TokenHub.deployed();
 
         const sender = accounts[2];
@@ -742,7 +742,7 @@ contract('TokenHub', (accounts) => {
         expireTime = (timestamp + 150);
 
         try {
-            await tokenHub.batchTransferOutBNB(recipientAddrs, amounts, refundAddrs, expireTime, {from: sender, value: web3.utils.toBN("9999990000000000")});
+            await tokenHub.batchTransferOutAXC(recipientAddrs, amounts, refundAddrs, expireTime, {from: sender, value: web3.utils.toBN("9999990000000000")});
             assert.fail();
         } catch (error) {
             assert.ok(error.toString().includes("SafeMath: addition overflow"));
@@ -909,7 +909,7 @@ contract('TokenHub', (accounts) => {
         const crossChain = await CrossChain.deployed();
         const govHub = await GovHub.deployed();
 
-        await govHub.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address, MockLightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address, TokenManager.address, CrossChain.address, CrossChain.address);
+        await govHub.updateContractAddr(ASCValidatorSet.address, SlashIndicator.address, SystemReward.address, MockLightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address, TokenManager.address, CrossChain.address, CrossChain.address);
 
         const owner = accounts[0];
         const relayer = accounts[1];
@@ -941,7 +941,7 @@ contract('TokenHub', (accounts) => {
         const syncFee = await tokenManager.syncFee();
         assert.equal(web3.utils.toBN(1e19).eq(syncFee), true, "Wrong syncFee");
 
-        await govHub.updateContractAddr(BSCValidatorSet.address, SlashIndicator.address, SystemReward.address, MockLightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address, TokenManager.address, accounts[8], CrossChain.address);
+        await govHub.updateContractAddr(ASCValidatorSet.address, SlashIndicator.address, SystemReward.address, MockLightClient.address, TokenHub.address, RelayerIncentivize.address, RelayerHub.address, GovHub.address, TokenManager.address, accounts[8], CrossChain.address);
     });
     it('iterate mirror failures', async () => {
         const tokenManager = await TokenManager.deployed();

@@ -28,7 +28,7 @@ contract MockTokenHub is ITokenHub {
   }
 
   /* solium-disable-next-line */
-  function batchTransferOutBNB(address[] calldata, uint256[] calldata, address[] calldata,
+  function batchTransferOutAXC(address[] calldata, uint256[] calldata, address[] calldata,
     uint64) external override(ITokenHub) payable returns (bool) {
     require(!panicBatchTransferOut, "panic in batchTransferOut");
     return true;
@@ -38,7 +38,7 @@ contract MockTokenHub is ITokenHub {
     panicBatchTransferOut = doPanic;
   }
 
-  function withdrawStakingBNB(uint256 amount) external override returns(bool) {
+  function withdrawStakingAXC(uint256 amount) external override returns(bool) {
     address STAKING_CONTRACT_ADDR = address(0x0000000000000000000000000000000000002001);
     require(msg.sender == STAKING_CONTRACT_ADDR, "only staking system contract can call this function");
     if (amount != 0) {

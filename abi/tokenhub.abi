@@ -213,7 +213,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "BEP2_TOKEN_SYMBOL_FOR_BNB",
+		"name": "BEP2_TOKEN_SYMBOL_FOR_AXC",
 		"outputs": [
 			{
 				"internalType": "bytes32",
@@ -395,7 +395,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "MAX_GAS_FOR_TRANSFER_BNB",
+		"name": "MAX_GAS_FOR_TRANSFER_AXC",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -700,7 +700,7 @@
 	},
 	{
 		"inputs": [],
-		"name": "bscChainID",
+		"name": "ascChainID",
 		"outputs": [
 			{
 				"internalType": "uint16",
@@ -889,7 +889,7 @@
 				"type": "uint64"
 			}
 		],
-		"name": "batchTransferOutBNB",
+		"name": "batchTransferOutAXC",
 		"outputs": [
 			{
 				"internalType": "bool",
@@ -1043,7 +1043,7 @@
 				"type": "uint256"
 			}
 		],
-		"name": "withdrawStakingBNB",
+		"name": "withdrawStakingAXC",
 		"outputs": [
 			{
 				"internalType": "bool",

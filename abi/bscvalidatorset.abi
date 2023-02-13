@@ -713,7 +713,7 @@
 	{
 		"constant": true,
 		"inputs": [],
-		"name": "bscChainID",
+		"name": "ascChainID",
 		"outputs": [
 			{
 				"internalType": "uint16",
@@ -748,7 +748,7 @@
 			},
 			{
 				"internalType": "address",
-				"name": "BBCFeeAddress",
+				"name": "AFCFeeAddress",
 				"type": "address"
 			},
 			{

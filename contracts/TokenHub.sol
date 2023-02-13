@@ -21,7 +21,7 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
   using RLPDecode for RLPDecode.RLPItem;
   using RLPDecode for RLPDecode.Iterator;
 
-  // BSC to BC
+  // ASC to FC
   struct TransferOutSynPackage {
     bytes32 bep2TokenSymbol;
     address contractAddr;
@@ -31,7 +31,7 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
     uint64  expireTime;
   }
 
-  // BC to BSC
+  // FC to ASC
   struct TransferOutAckPackage {
     address contractAddr;
     uint256[] refundAmounts;
@@ -39,7 +39,7 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
     uint32 status;
   }
 
-  // BC to BSC
+  // FC to ASC
   struct TransferInSynPackage {
     bytes32 bep2TokenSymbol;
     address contractAddr;
@@ -49,7 +49,7 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
     uint64  expireTime;
   }
 
-  // BSC to BC
+  // ASC to FC
   struct TransferInRefundPackage {
     bytes32 bep2TokenSymbol;
     uint256 refundAmount;
@@ -69,9 +69,9 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
   uint8 constant public   MINIMUM_BEP20_SYMBOL_LEN = 2;
   uint8 constant public   MAXIMUM_BEP20_SYMBOL_LEN = 8;
   uint8 constant public   BEP2_TOKEN_DECIMALS = 8;
-  bytes32 constant public BEP2_TOKEN_SYMBOL_FOR_BNB = 0x424E420000000000000000000000000000000000000000000000000000000000; // "BNB"
+  bytes32 constant public BEP2_TOKEN_SYMBOL_FOR_AXC = 0x4158430000000000000000000000000000000000000000000000000000000000; // "AXC"
   uint256 constant public MAX_GAS_FOR_CALLING_BEP20=50000;
-  uint256 constant public MAX_GAS_FOR_TRANSFER_BNB=10000;
+  uint256 constant public MAX_GAS_FOR_TRANSFER_AXC=10000;
 
   uint256 constant public INIT_MINIMUM_RELAY_FEE =2e15;
   uint256 constant public REWARD_UPPER_LIMIT =1e18;
@@ -96,7 +96,7 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
 
   function init() onlyNotInit external {
     relayFee = INIT_MINIMUM_RELAY_FEE;
-    bep20ContractDecimals[address(0x0)] = 18; // BNB decimals is 18
+    bep20ContractDecimals[address(0x0)] = 18; // AXC decimals is 18
     alreadyInit=true;
   }
 
@@ -205,7 +205,7 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
       if (address(this).balance < transInSynPkg.amount) {
         return TRANSFER_IN_FAILURE_INSUFFICIENT_BALANCE;
       }
-      (bool success, ) = transInSynPkg.recipient.call{gas: MAX_GAS_FOR_TRANSFER_BNB, value: transInSynPkg.amount}("");
+      (bool success, ) = transInSynPkg.recipient.call{gas: MAX_GAS_FOR_TRANSFER_AXC, value: transInSynPkg.amount}("");
       if (!success) {
         return TRANSFER_IN_FAILURE_NON_PAYABLE_RECIPIENT;
       }
@@ -277,7 +277,7 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
   function doRefund(TransferOutAckPackage memory transOutAckPkg) internal {
     if (transOutAckPkg.contractAddr==address(0x0)) {
       for (uint256 index = 0; index<transOutAckPkg.refundAmounts.length; index++) {
-        (bool success, ) = transOutAckPkg.refundAddrs[index].call{gas: MAX_GAS_FOR_TRANSFER_BNB, value: transOutAckPkg.refundAmounts[index]}("");
+        (bool success, ) = transOutAckPkg.refundAddrs[index].call{gas: MAX_GAS_FOR_TRANSFER_AXC, value: transOutAckPkg.refundAmounts[index]}("");
         if (!success) {
           emit refundFailure(transOutAckPkg.contractAddr, transOutAckPkg.refundAddrs[index], transOutAckPkg.refundAmounts[index], transOutAckPkg.status);
         } else {
@@ -383,20 +383,20 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
 
   function transferOut(address contractAddr, address recipient, uint256 amount, uint64 expireTime) external override onlyInit payable returns (bool) {
     require(expireTime>=block.timestamp + 120, "expireTime must be two minutes later");
-    require(msg.value%TEN_DECIMALS==0, "invalid received BNB amount: precision loss in amount conversion");
+    require(msg.value%TEN_DECIMALS==0, "invalid received AXC amount: precision loss in amount conversion");
     bytes32 bep2TokenSymbol;
     uint256 convertedAmount;
     uint256 rewardForRelayer;
     if (contractAddr==address(0x0)) {
-      require(msg.value>=amount.add(relayFee), "received BNB amount should be no less than the sum of transferOut BNB amount and minimum relayFee");
+      require(msg.value>=amount.add(relayFee), "received AXC amount should be no less than the sum of transferOut AXC amount and minimum relayFee");
       require(amount%TEN_DECIMALS==0, "invalid transfer amount: precision loss in amount conversion");
       rewardForRelayer=msg.value.sub(amount);
-      convertedAmount = amount.div(TEN_DECIMALS); // native bnb decimals is 8 on BBC, while the native bnb decimals on BSC is 18
-      bep2TokenSymbol=BEP2_TOKEN_SYMBOL_FOR_BNB;
+      convertedAmount = amount.div(TEN_DECIMALS); // native axc decimals is 8 on AFC, while the native axc decimals on ASC is 18
+      bep2TokenSymbol=BEP2_TOKEN_SYMBOL_FOR_AXC;
     } else {
       bep2TokenSymbol = contractAddrToBEP2Symbol[contractAddr];
       require(bep2TokenSymbol!=bytes32(0x00), "the contract has not been bound to any bep2 token");
-      require(msg.value>=relayFee, "received BNB amount should be no less than the minimum relayFee");
+      require(msg.value>=relayFee, "received AXC amount should be no less than the minimum relayFee");
       rewardForRelayer=msg.value;
       uint256 bep20TokenDecimals=bep20ContractDecimals[contractAddr];
       require(bep20TokenDecimals<=BEP2_TOKEN_DECIMALS || (bep20TokenDecimals>BEP2_TOKEN_DECIMALS && amount.mod(10**(bep20TokenDecimals-BEP2_TOKEN_DECIMALS))==0), "invalid transfer amount: precision loss in amount conversion");
@@ -424,11 +424,11 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
     return true;
   }
 
-  function batchTransferOutBNB(address[] calldata recipientAddrs, uint256[] calldata amounts, address[] calldata refundAddrs, uint64 expireTime) external override onlyInit payable returns (bool) {
+  function batchTransferOutAXC(address[] calldata recipientAddrs, uint256[] calldata amounts, address[] calldata refundAddrs, uint64 expireTime) external override onlyInit payable returns (bool) {
     require(recipientAddrs.length == amounts.length, "Length of recipientAddrs doesn't equal to length of amounts");
     require(recipientAddrs.length == refundAddrs.length, "Length of recipientAddrs doesn't equal to length of refundAddrs");
     require(expireTime>=block.timestamp + 120, "expireTime must be two minutes later");
-    require(msg.value%TEN_DECIMALS==0, "invalid received BNB amount: precision loss in amount conversion");
+    require(msg.value%TEN_DECIMALS==0, "invalid received AXC amount: precision loss in amount conversion");
     uint256 batchLength = amounts.length;
     uint256 totalAmount = 0;
     uint256 rewardForRelayer;
@@ -438,11 +438,11 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
       totalAmount = totalAmount.add(amounts[i]);
       convertedAmounts[i] = amounts[i].div(TEN_DECIMALS);
     }
-    require(msg.value>=totalAmount.add(relayFee.mul(batchLength)), "received BNB amount should be no less than the sum of transfer BNB amount and relayFee");
+    require(msg.value>=totalAmount.add(relayFee.mul(batchLength)), "received AXC amount should be no less than the sum of transfer AXC amount and relayFee");
     rewardForRelayer = msg.value.sub(totalAmount);
 
     TransferOutSynPackage memory transOutSynPkg = TransferOutSynPackage({
-      bep2TokenSymbol: BEP2_TOKEN_SYMBOL_FOR_BNB,
+      bep2TokenSymbol: BEP2_TOKEN_SYMBOL_FOR_AXC,
       contractAddr: address(0x00),
       amounts: convertedAmounts,
       recipients: recipientAddrs,
@@ -562,7 +562,7 @@ contract TokenHub is ITokenHub, System, IParamSubscriber, IApplication, ISystemR
     return string(bep2Symbol);
   }
 
-  function withdrawStakingBNB(uint256 amount) external override returns(bool) {
+  function withdrawStakingAXC(uint256 amount) external override returns(bool) {
     require(msg.sender == STAKING_CONTRACT_ADDR, "only staking system contract can call this function");
     if (amount != 0) {
       payable(STAKING_CONTRACT_ADDR).transfer(amount);

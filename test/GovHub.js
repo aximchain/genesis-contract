@@ -1,6 +1,6 @@
 const truffleAssert = require('truffle-assertions');
 const GovHub = artifacts.require("GovHub");
-const BSCValidatorSet = artifacts.require("BSCValidatorSet");
+const ASCValidatorSet = artifacts.require("ASCValidatorSet");
 const CrossChain = artifacts.require("CrossChain");
 const SystemReward = artifacts.require("SystemReward");
 const TokenHub = artifacts.require("TokenHub");
@@ -17,7 +17,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 contract('GovHub others', (accounts) => {
     it('Gov others success', async () => {
         const govHubInstance = await GovHub.deployed();
-        const bSCValidatorSetInstance =await BSCValidatorSet.deployed();
+        const bSCValidatorSetInstance =await ASCValidatorSet.deployed();
 
         const relayerAccount = accounts[8];
         let tx = await govHubInstance.handleSynPackage(GOV_CHANNEL_ID, serialize("expireTimeSecondGap", "0x0000000000000000000000000000000000000000000000000000000000010000", bSCValidatorSetInstance.address),
@@ -32,7 +32,7 @@ contract('GovHub others', (accounts) => {
 
     it('Gov others failed', async () => {
         const govHubInstance = await GovHub.deployed();
-        const bSCValidatorSetInstance =await BSCValidatorSet.deployed();
+        const bSCValidatorSetInstance =await ASCValidatorSet.deployed();
         const systemRewardInstance = await SystemReward.deployed();
         const relayerAccount = accounts[8];
 

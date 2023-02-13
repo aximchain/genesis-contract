@@ -17,7 +17,7 @@ async function processValidatorConf() {
     validators.push({
       consensusAddr: vs[0],
       feeAddr: vs[1],
-      bscFeeAddr: vs[2],
+      ascFeeAddr: vs[2],
       votingPower: vs[3],
     })
   }
@@ -31,5 +31,5 @@ processValidatorConf().then(function (validators) {
   const templateString = fs.readFileSync(__dirname + '/validators.template').toString();
   const resultString = nunjucks.renderString(templateString, data);
   fs.writeFileSync(__dirname + '/validators.js', resultString);
-  console.log("BSCValidatorSet file updated.");
+  console.log("ASCValidatorSet file updated.");
 })
