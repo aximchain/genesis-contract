@@ -20,7 +20,7 @@ program.option("--mock <mock>",
 
 program.option("--ascChainId <ascChainId>",
     "ascChainId",
-    "0060");
+    "02CA");
 
 program.parse(process.argv);
 

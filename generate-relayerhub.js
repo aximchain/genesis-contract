@@ -16,7 +16,7 @@ program.option(
 )
 program.option("--mock <mock>",
     "if use mock",
-    false);
+    true);
 
 
 program.parse(process.argv);

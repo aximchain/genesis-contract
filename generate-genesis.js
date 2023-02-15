@@ -10,7 +10,7 @@ const init_holders = require("./init_holders")
 
 program.option("--ascChainId <ascChainId>",
     "ascChainId",
-    "0060");
+    "02CA");
 program.option("-c, --chainid <chainid>", "chain id", "714")
 
 program.option(
@@ -27,7 +27,7 @@ program.option(
 
 program.option("--initConsensusStateBytes <initConsensusStateBytes>",
     "init consensusState bytes, hex encoding, no prefix with 0x",
-    "42696e616e63652d436861696e2d4e696c650000000000000000000000000000000000000000000229eca254b3859bffefaf85f4c95da9fbd26527766b784272789c30ec56b380b6eb96442aaab207bc59978ba3dd477690f5c5872334fc39e627723daa97e441e88ba4515150ec3182bc82593df36f8abb25a619187fcfab7e552b94e64ed2deed000000e8d4a51000");
+    "4178696d636861696e2d5068756f6e6700000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000003f9109c80fe80b64f299bb9701031169989879e25a500c8a745f43e53c86db6b65e09b599afa4fb6712b94e50ae0f5d5265e9749b0c6ad9152ee6a8e557a947d0000082f79cd9000");
 
 
 require("./generate-system");
